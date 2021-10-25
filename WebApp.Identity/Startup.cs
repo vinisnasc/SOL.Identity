@@ -2,12 +2,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace WebApp.Identity
@@ -25,11 +28,19 @@ namespace WebApp.Identity
         {
             services.AddControllersWithViews();
 
-            // Inclusão do Identity
-            services.AddIdentityCore<MyUser>(options => { });
-            services.AddScoped<IUserStore<MyUser>, MyUserStore>();
+            // Configuração do BD
+            var connectionString = "Integrated Security = SSPI;Persist Security Info=False;" +
+                                   "Initial Catalog=IdentityCurso;Data Source=DESKTOP-R9JFMSC\\SQLEXPRESS";
+            var migrationAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+            services.AddDbContext<MyUserDbContext>(opt => opt.UseSqlServer(connectionString,
+                                                     sql => sql.MigrationsAssembly(migrationAssembly)));
 
-            services.AddAuthentication("cookies").AddCookie("cookies", options => options.LoginPath = "/Home/Login");
+            // Inclusão do Identity
+            services.AddIdentity<MyUser, IdentityRole>(options => { }).AddEntityFrameworkStores<MyUserDbContext>();
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
+
+            // Injeção de dependencia para personalização das Claims
+            services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -45,6 +56,7 @@ namespace WebApp.Identity
                 app.UseHsts();
             }
 
+            // Adicionar autenticação
             app.UseAuthentication();
 
             app.UseHttpsRedirection();
