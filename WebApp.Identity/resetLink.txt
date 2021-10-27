@@ -1,0 +1,1 @@
+https://localhost:44329/Home/ResetPassword?token=CfDJ8IcCXerHdudBrG6R6a5gP%2Fg8OAJWiwWkMbojbHfiwJEDVV8gP%2BuSTuIt9%2FOQtfI0hZDdjmk%2Bzmz40bhasPhOW2tDeFTdAMctSaoW2UeXv9ZHL7UMlQrRKGjXj02Ntjj%2F%2FU0Gos%2BMC4LaZ%2FZk5TgeCe5qaNFYz%2BHYcwWUjgpeGKKcm4%2F4xDGP%2FAbcsuvusHjwL5t38irbuSm6MAyRrq%2FdXHZwJgrLUeZQxq7abgDan7B%2B&email=vinicius@vinicius.com.br

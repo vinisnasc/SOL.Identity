@@ -36,11 +36,31 @@ namespace WebApp.Identity
                                                      sql => sql.MigrationsAssembly(migrationAssembly)));
 
             // Inclusão do Identity
-            services.AddIdentity<MyUser, IdentityRole>(options => { }).AddEntityFrameworkStores<MyUserDbContext>();
-            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
+            services.AddIdentity<MyUser, IdentityRole>(options => 
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+
+                // Travar o login por tentativas erradas
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.AllowedForNewUsers = true;
+            })
+                    .AddEntityFrameworkStores<MyUserDbContext>()
+                    .AddDefaultTokenProviders()
+                    .AddPasswordValidator<NaoContemValidadorSenha<MyUser>>();
 
             // Injeção de dependencia para personalização das Claims
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
+
+            // Configura em quanto tempo o Token de alteração de senha vai expirar
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(3));
+
+            // Configuração de cookies
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
